@@ -4,6 +4,7 @@
     <title>Simple Map</title>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <meta charset="utf-8">
+    <script type="text/javascript" src="libs/jquery-2.0.2.min.js"></script>
     <style>
         html, body, #map-canvas {
             height: 100%;
@@ -14,26 +15,60 @@
             width: 500px;
             height: 500px;
         }
-    </style>
-    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
-    <script>
-        var map;
-        function initialize() {
-            var mapOptions = {
-                zoom: 8,
-                center: new google.maps.LatLng(-34.397, 150.644)
-            };
-            map = new google.maps.Map(document.getElementById('map-canvas'),
-                    mapOptions);
+        .btn-position{
+            width: 50px;
+            height: 20px;
         }
+    </style>
 
-        google.maps.event.addDomListener(window, 'load', initialize);
-
-    </script>
 </head>
 <body>
 <div id="wrapperMap">
+    <button class="btn-position" onclick="getPosition();">go</button>
     <div id="map-canvas"></div>
+    <div class="saveMap">
+
+    </div>
 </div>
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+<script>
+    var map,marker,options;
+    function initialize(lat,lon) {
+        var self = this;
+        if(lat && lon){
+            mapOptions = {
+                zoom: 8,
+                center: new google.maps.LatLng(lat,lon)
+            };
+        } else{
+            mapOptions = {
+                zoom: 8,
+                center: new google.maps.LatLng(-34.397, 150.644)
+            };
+        }
+        map = new google.maps.Map(document.getElementById('map-canvas'),
+                mapOptions);
+        marker = new google.maps.Marker({
+            position: mapOptions.center,
+            map: self.map
+        });
+    }
+
+    google.maps.event.addDomListener(window, 'load', initialize);
+
+    function getPosition(){
+        $.getJSON( 'http://ip-api.com/json', function(data){
+            console.log('items',data.lat, data.lon);
+            initialize(data.lat, data.lon);
+            var saveWrap = document.getElementsByClassName('saveMap');
+            var imgMap = document.createElement('img');
+            imgMap.id = 'saveIMG';
+            imgMap.setAttribute(src="//maps.googleapis.com/maps/api/staticmap?center='+ data.lon +','+ data.lat +'&zoom=12&size=400x400&sensor=false");
+//                <img src="//maps.googleapis.com/maps/api/staticmap?center='+ data.lon +','+ data.lat +'&zoom=12&size=400x400&sensor=false">
+            console.log('saveMap', saveWrap,imgMap);
+            saveWrap.appendChild(imgMap);
+        });
+    }
+</script>
 </body>
 </html>
